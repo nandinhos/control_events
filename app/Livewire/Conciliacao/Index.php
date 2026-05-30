@@ -23,6 +23,7 @@ class Index extends Component
     public string $searchTransacao = '';
     public ?string $filterDataInicio = null;
     public ?string $filterDataFim = null;
+    public ?int $filterArtistaId = null; // HUB-002: Filtro por artista
 
     public bool $showImportModal = false;
     public TemporaryUploadedFile|null $fileImport = null;
@@ -88,8 +89,13 @@ class Index extends Component
     #[Computed]
     public function lancamentosNaoConciliados()
     {
-        $receber = ContasAReceber::whereDoesntHave('conciliacaoLinks')
-            ->aberto()
+        // HUB-002: Filtro por artista
+        $receberQuery = ContasAReceber::whereDoesntHave('conciliacaoLinks')
+            ->aberto();
+        if ($this->filterArtistaId) {
+            $receberQuery->where('artista_id', $this->filterArtistaId);
+        }
+        $receber = $receberQuery
             ->selectRaw("id, 'ContasAReceber' as tipo, nome_evento, valor_previsto, vencimento_atual, 'receber' as source")
             ->get()
             ->map(fn($r) => (object) [
@@ -99,8 +105,10 @@ class Index extends Component
                 'valor' => (float) $r->valor_previsto,
             ]);
 
-        $pagar = ContasAPagar::whereDoesntHave('conciliacaoLinks')
-            ->pendente()
+        $pagarQuery = ContasAPagar::whereDoesntHave('conciliacaoLinks')
+            ->pendente();
+        // Payables don't have artista_id directly, would need join through contrato
+        $pagar = $pagarQuery
             ->selectRaw("id, 'ContasAPagar' as tipo, descricao, valor_devido, data_devida, 'pagar' as source")
             ->get()
             ->map(fn($p) => (object) [
@@ -121,6 +129,17 @@ class Index extends Component
             ->distinct()
             ->orderBy('conta_bancaria')
             ->pluck('conta_bancaria')
+            ->toArray();
+    }
+
+    // HUB-002: Artistas para filtro
+    #[Computed]
+    public function artistasDisponiveis(): array
+    {
+        return \App\Models\Entidade::query()
+            ->whereHas('artistaContratos')
+            ->orderBy('razao_social')
+            ->pluck('razao_social', 'id')
             ->toArray();
     }
 
