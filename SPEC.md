@@ -1,97 +1,151 @@
-# SPEC.md — control_events Systematic Debug
+# SPEC.md — control_events MVP Implementation
 
 **Data:** 2026-05-30
-**Status:** IN PROGRESS
+**Status:** IN PROGRESS — Phase 1 (Foundation & RBAC)
 **Stack:** Laravel 13 + Livewire v4 + Flux Pro v2.14 + Sail + PostgreSQL 17
 **Port:** localhost:50138
 
 ---
 
-## 1. Problema
+## Documentação de Referência
 
-Dashboard quebra com `$ano = 0` em contextos onde `mount()` não executa corretamente (renderização via `app()` no Blade). Erros SQL:
-- `0000-05-01` (date overflow PostgreSQL) — `$ano` defaultava para 0
-- `column "status" does not exist` — query usava coluna `status` mas tabela tem `status_booking`
-
----
-
-## 2. Correções Ja Aplicadas
-
-1. `Dashboard/Index.php` — `$ano` local com fallback `?: (int) date('Y')` em todos os metodos
-2. `Dashboard/Index.php` — `strftime()` → `DateTime::format('M y')` (DB-agnostic)
-3. `Dashboard/Index.php` — `status` → `status_booking` na query de eventosMes
-4. `dashboard.blade.php` — `$evento['status']` → `$evento['status_booking']`
+| Documento | Local | Descrição |
+|-----------|-------|-----------|
+| PRD Original | `docs/prd_event_control.md` | Requisitos completos do sistema |
+| Regras de Negócio | `docs/regras_negocio_event_control.md` | RNs detalhadas |
+| Roadmap | `.devorq/ROADMAP.md` | Roadmap de implementação |
+| PRD v2 (Stories) | `.devorq/prd-v2.json` | 26 stories organizadas por phase |
 
 ---
 
-## 3. Success Criteria
+## Contexto Atual
 
-### GATE-1: Spec Exists
-- [x] SPEC.md criado com problemas e correções documentados
+### Problema Original (Já Corrigido)
+Dashboard quebrava com `$ano = 0` quando renderizado via `app()` no Blade.
 
-### GATE-2: Tests Pass
-- [ ] PHPStan level 0 em app/Models, app/Services, app/Livewire (0 errors)
-- [ ] `php artisan test` executa sem failures de lógica nossa
-- [ ] `php artisan route:list` sem erros
-
-### GATE-3: Context Documented
-- [x] context.json preenchido com intent, stack, success_criteria
-
-### GATE-4: Lessons Reviewed
-- [ ] Verificar lessons para problemas similares ja conhecidos
-
-### GATE-5: Handoff Ready
-- [ ] devorq compact gera JSON válido
-
-### GATE-6: Context7 Checked
-- [ ] Consultar docs Laravel para padrões corretos
-
-### GATE-7: Systematic Debug
-- [ ] Playwright E2E — todas as rotas navegáveis sem 500
-- [ ] Dashboard sem erros no load
-- [ ] Todas as páginas autenticadas retornam HTTP 200
+### Correções Aplicadas
+1. `$ano` com fallback `?: date('Y')` em todos os métodos
+2. `strftime()` → `DateTime::format()`
+3. `status` → `status_booking` na query
+4. Tabela `extrato_bancario_transacaos` → `extrato_bancario_transacoes`
+5. Nomenclatura `Entidade/` → `Entidades/`, `Contrato/` → `Contratos/`
+6. Rota `entidades.index` e `contratos.index` corrigidas
+7. Loop infinito HubArtista resolvido
+8. `ConfirmDelete` removido (não existia)
 
 ---
 
-## 4. Verificação Visual (Playwright)
+## GATE Status
 
-### Rotas a Testar
-| Rota | Esperado | Método |
-|------|----------|--------|
-| `/` | 200 | Landing page |
-| `/dashboard` | 200 | Dashboard KPIs |
-| `/entidades` | 200 | CRUD Entidades |
-| `/contratos` | 200 | CRUD Contratos |
-| `/receber` | 200 | Contas a Receber |
-| `/pagar` | 200 | Contas a Pagar |
-| `/conciliacao` | 200 | Conciliacao Bancaria |
-| `/hub-artista` | 200 | Hub Artista |
-| `/internacional` | 200 | Placeholder |
-
-### Fluxo
-1. Login com usuário existente
-2. Navegar para cada rota autenticada
-3. Verificar HTTP 200 + sem erros 500 no page
-4. Se erro → systematic-debugging → GATE-7 → corrigir → re-testar
+| Gate | Status | Descrição |
+|------|---------|-----------|
+| GATE-1 | ✅ | SPEC.md criado |
+| GATE-2 | ✅ | PHPStan 0 errors, Tests passing |
+| GATE-3 | ✅ | prd.json e context.json preenchidos |
+| GATE-4 | ✅ | 3 lessons capturadas |
+| GATE-5 | ✅ | devorq compact OK |
+| GATE-6 | ✅ | Context7 checked |
+| GATE-7 | ✅ | Playwright E2E 10/10 |
 
 ---
 
-## 5. Lições Aprendidas
+## Roadmap de Implementação
 
-### Lesson 1: Dashboard Component Renderizado via `app()` no Blade
-- **Problema:** `$ano` inicializado com `public int $ano = 0` — quando o componente é criado via `app(\App\Livewire\Dashboard\Index::class)`, `mount()` não é chamado no contexto de render Blade
-- **Solução:** TODAS as variáveis devem usar fallback local dentro de cada método `#[Computed]`
-- **Stack:** Laravel + Livewire + Blade `app()` helper
+### Phase 1: Foundation & RBAC (Semanas 1-3) — **IN PROGRESS**
+### Phase 2: Core Finance & Provisioning (Semanas 4-6)
+### Phase 3: Reconciliation Engine (Semanas 7-9)
+### Phase 4: International & Hub Artista (Semanas 10-12)
 
-### Lesson 2: Nomes de Colunas Devem Combinar com Migration
-- **Problema:** Query usava `status` mas a coluna real é `status_booking`
-- **Solução:** Sempre consultar a migration antes de escrever queries
-- **Stack:** PostgreSQL + Laravel Eloquent
+**Detalhes completos:** [`.devorq/ROADMAP.md`](.devorq/ROADMAP.md)
 
 ---
 
-## 6. Out of Scope
-- Tests funcionais de CRUD (não temos dados seed)
-- Code review de estilo (Laravel Pint resolve)
-- Internacionalização
-- Webhooks / notificações
+## Stories (26 Total)
+
+### Phase 1 - Foundation & RBAC
+
+| ID | Story | Status | Dependencies |
+|----|-------|--------|--------------|
+| RBAC-001 | Middleware RBAC 5 roles | ⏳ Pending | - |
+| RBAC-002 | Gate/Policy Layer | ⏳ Pending | RBAC-001 |
+| RBAC-003 | Route Protection | ⏳ Pending | RBAC-001 |
+| RBAC-004 | Admin-only Filter | ⏳ Pending | RBAC-002 |
+| SM-001 | Design State Machine | ⏳ Pending | - |
+| SM-002 | Spatie Implementation | ⏳ Pending | SM-001 |
+| SM-003 | Transition Guards | ⏳ Pending | SM-002 |
+
+### Phase 2 - Core Finance
+
+| ID | Story | Status | Dependencies |
+|----|-------|--------|--------------|
+| PROV-001 | Provisionamento Validation | ⏳ Pending | SM-002 |
+| PROV-002 | Alerta Incompleto | ⏳ Pending | PROV-001 |
+| PROV-003 | Splits UI | ⏳ Pending | PROV-001 |
+| PROV-004 | Split Validation | ⏳ Pending | PROV-003 |
+| PAY-001 | Block Pagar | ⏳ Pending | SM-003 |
+
+### Phase 3 - Reconciliation
+
+| ID | Story | Status | Dependencies |
+|----|-------|--------|--------------|
+| REC-001 | Fuzzy Search | ⏳ Pending | - |
+| REC-002 | Auto-match Algorithm | ⏳ Pending | REC-001 |
+| REC-003 | N-para-1 UI | ⏳ Pending | REC-002 |
+| REC-004 | Quick Adjustment | ⏳ Pending | PAY-002 |
+| REC-005 | Reconciliation Confirm | ⏳ Pending | REC-003 |
+| REC-006 | Add Lancamento | ⏳ Pending | REC-003 |
+
+### Phase 4 - International & Hub
+
+| ID | Story | Status | Dependencies |
+|----|-------|--------|--------------|
+| INT-001 | Multicurrency Fields | ⏳ Pending | - |
+| INT-002 | Cambio Service | ⏳ Pending | INT-001 |
+| INT-003 | Aguardando Cambio | ⏳ Pending | INT-002 |
+| INT-004 | Admin Exchange Rate | ⏳ Pending | INT-003, RBAC |
+| INT-005 | Movimentacao Interna | ⏳ Pending | INT-001 |
+| INT-006 | International UI | ⏳ Pending | INT-001, INT-005 |
+| HUB-001 | Hub Artista Dashboard | ⏳ Pending | RBAC |
+| HUB-002 | Artist Reconciliation | ⏳ Pending | HUB-001, REC-005 |
+
+---
+
+## Lições Aprendidas
+
+### Lesson 001: Dashboard Component via `app()`
+- **Problema:** `$ano` inicializado com `public int $ano = 0` — `mount()` não executa quando criado via `app()`
+- **Solução:** TODAS variáveis devem usar fallback local `?: valor` dentro de cada método
+
+### Lesson 002: Nomes de Colunas Devem Combinar com Migration
+- **Problema:** Query usava `status` mas coluna real é `status_booking`
+- **Solução:** Consultar migration antes de escrever queries
+
+### Lesson 003: Flux Pro v2.14 Stubs
+- **Problema:** Componentes Flux não existiam no projeto
+- **Solução:** Copiar stubs do vendor ou recriar manualmente
+
+---
+
+## Out of Scope (MVP)
+- Integração Open Finance / APIs bancárias
+- Emissão automatizada de Notas Fiscais
+- Assinatura eletrônica integrada (DocuSign/Clicksign)
+- IA para conciliação 100% autônoma
+
+---
+
+## Comandos Úteis
+
+```bash
+# Playwright E2E
+node playwright-e2e.cjs
+
+# PHPStan
+docker compose exec -T laravel.test vendor/bin/phpstan analyse
+
+# Tests
+docker compose exec -T laravel.test php artisan test
+
+# Routes
+docker compose exec -T laravel.test php artisan route:list
+```
