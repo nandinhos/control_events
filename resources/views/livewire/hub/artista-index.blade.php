@@ -133,7 +133,7 @@
         </div>
     @else
         <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-8 text-center">
-            <flux:icon variant="large" icon="user-circle" class="mx-auto text-zinc-400 mb-4" />
+            <flux:icon icon="user" class="mx-auto text-zinc-400 mb-4 w-12 h-12" />
             <flux:heading level="3">Selecione um Artista</flux:heading>
             <p class="text-zinc-500 mt-2">Escolha um artista acima para ver seu dashboard de performance.</p>
         </div>
