@@ -60,6 +60,7 @@
                         <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase">Vencimento</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase">Valor</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase">Recebido</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase">Splits</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase">Status</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase">Booking</th>
                         <th class="px-4 py-3 text-right text-xs font-medium text-zinc-500 uppercase">Acoes</th>
@@ -78,6 +79,22 @@
                             <td class="px-4 py-3 font-medium">{{ number_format($l->valor_previsto, 2, ',', '.') }}</td>
                             <td class="px-4 py-3 text-green-600 font-medium">{{ number_format($l->valor_recebido, 2, ',', '.') }}</td>
                             <td class="px-4 py-3">
+                                @php
+                                    $splitsPorDestino = $l->splits->groupBy('tipo_destinatario')->map(fn($s) => $s->sum('valor_absoluto'));
+                                @endphp
+                                @if($splitsPorDestino->isNotEmpty())
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach($splitsPorDestino as $destino => $valor)
+                                            <flux:badge size="sm" color="{{ $destino === 'Panorama' ? 'primary' : ($destino === 'Coral' ? 'warning' : 'success') }}">
+                                                {{ $destino[0] }}: {{ number_format($valor, 2, ',', '.') }}
+                                            </flux:badge>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <span class="text-zinc-400 text-xs">Sem splits</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3">
                                 <flux:badge color="{{ $l->status_pagamento === 'quitado' ? 'success' : ($l->isVencido ? 'danger' : 'warning') }}" size="sm">{{ ucfirst($l->status_pagamento) }}</flux:badge>
                             </td>
                             <td class="px-4 py-3">
@@ -88,7 +105,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="9" class="text-center py-12 text-zinc-500">Nenhum lancamento encontrado</td></tr>
+                        <tr><td colspan="10" class="text-center py-12 text-zinc-500">Nenhum lancamento encontrado</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -212,6 +229,81 @@
                         <flux:field.label>Cashflow Categoria</flux:field.label>
                         <flux:input wire:model="cashflow_categoria" placeholder="Categoria" />
                     </div>
+                </div>
+
+                <!-- PROV-003: Splits de Destino -->
+                <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4 mt-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <flux:heading level="4" class="text-sm font-medium">Splits de Destino</flux:heading>
+                        <flux:button wire:click="addSplit" variant="outline" size="xs">
+                            <flux:icon variant="micro" icon="plus" class="mr-1" />Adicionar Split
+                        </flux:button>
+                    </div>
+
+                    @if(count($splits) > 0)
+                        <div class="space-y-2 mb-3">
+                            @foreach($splits as $index => $split)
+                                <div class="flex items-end gap-2 p-3 bg-zinc-50 dark:bg-zinc-700/50 rounded-lg">
+                                    <div class="flex-1">
+                                        <flux:field.label class="text-xs">Destino</flux:field.label>
+                                        <flux:select wire:model="splits.{{ $index }}.tipo_destinatario" class="mt-1">
+                                            <option value="">Selecione...</option>
+                                            <option value="Panorama">Panorama</option>
+                                            <option value="Coral">Coral</option>
+                                            <option value="Artista">Artista</option>
+                                        </flux:select>
+                                    </div>
+                                    <div class="flex-1">
+                                        <flux:field.label class="text-xs">Entidade</flux:field.label>
+                                        <flux:select wire:model="splits.{{ $index }}.entidade_id" class="mt-1">
+                                            <option value="">Selecione...</option>
+                                            @foreach($this->artistas as $entidade)
+                                                <option value="{{ $entidade->id }}">{{ $entidade->razao_social }}</option>
+                                            @endforeach
+                                        </flux:select>
+                                    </div>
+                                    <div class="w-28">
+                                        <flux:field.label class="text-xs">%</flux:field.label>
+                                        <flux:input wire:model="splits.{{ $index }}.valor_percentual" type="number" step="0.01" min="0" max="100" class="mt-1" />
+                                    </div>
+                                    <div class="w-32">
+                                        <flux:field.label class="text-xs">Valor (R$)</flux:field.label>
+                                        <flux:input wire:model="splits.{{ $index }}.valor_absoluto" type="number" step="0.01" min="0" class="mt-1" />
+                                    </div>
+                                    <flux:button wire:click="removeSplit({{ $index }})" variant="ghost" size="xs" class="text-red-500 mb-0.5">
+                                        <flux:icon variant="micro" icon="trash" />
+                                    </flux:button>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Resumo dos Splits -->
+                        @php
+                            $totalSplits = collect($splits)->sum(fn($s) => (float) ($s['valor_absoluto'] ?? 0));
+                            $valorPrevisto = (float) ($valor_previsto ?: 0);
+                            $diferenca = abs($valorPrevisto - $totalSplits);
+                            $splitsValidos = $diferenca < 0.01;
+                        @endphp
+                        <div class="flex items-center justify-between p-3 rounded-lg {{ $splitsValidos ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' : 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800' }}">
+                            <div>
+                                <span class="text-sm font-medium">Total Splits:</span>
+                                <span class="font-bold ml-2">R$ {{ number_format($totalSplits, 2, ',', '.') }}</span>
+                                <span class="text-zinc-500 mx-2">/</span>
+                                <span class="text-sm">Valor Previsto: R$ {{ number_format($valorPrevisto, 2, ',', '.') }}</span>
+                            </div>
+                            <div>
+                                @if($splitsValidos)
+                                    <flux:badge color="success" size="sm">✓ Soma bate</flux:badge>
+                                @else
+                                    <flux:badge color="warning" size="sm">Diferença: R$ {{ number_format($diferenca, 2, ',', '.') }}</flux:badge>
+                                @endif
+                            </div>
+                        </div>
+                    @else
+                        <div class="text-center py-6 text-zinc-500 text-sm border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-lg">
+                            Nenhum split adicionado. Clique em "Adicionar Split" para distribuir o valor entre Panorama/Coral/Artista.
+                        </div>
+                    @endif
                 </div>
             </form>
         </flux:modal.body>
