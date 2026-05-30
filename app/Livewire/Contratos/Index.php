@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Contrato;
+namespace App\Livewire\Contratos;
 
 use App\Models\Contrato;
 use App\Models\Entidade;

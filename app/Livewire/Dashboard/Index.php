@@ -106,18 +106,20 @@ class Index extends Component
             ->with(['booker:id,razao_social'])
             ->get();
 
+        $ano = $this->ano ?: (int) date('Y');
+        $mes = $this->mes ?? (int) date('m');
         $pagar = ContasAPagar::query()
-            ->where('ano_vencimento', $this->ano)
+            ->where('ano_vencimento', $ano)
             ->where('mes_vencimento', $mes)
             ->with(['contraparte:id,razao_social'])
             ->get();
 
-        // Build a timeline of all financial events
         $timeline = [];
+        $ano = $this->ano ?: (int) date('Y');
 
         foreach ($receber as $r) {
             $timeline[] = [
-                'date' => $r->vencimento_atual?->format('Y-m-d') ?? $r->data_evento?->format('Y-m-d') ?? "{$this->ano}-{$mes}-01",
+                'date' => $r->vencimento_atual?->format('Y-m-d') ?? $r->data_evento?->format('Y-m-d') ?? "{$ano}-{$mes}-01",
                 'type' => 'receber',
                 'label' => $r->nome_evento,
                 'booker' => $r->booker?->razao_social ?? '',
@@ -150,7 +152,8 @@ class Index extends Component
         // Last 6 months DRE
         $months = [];
         $currentMonth = $this->mes ?? (int) date('m');
-        $current = strtotime("{$this->ano}-{$currentMonth}-01");
+        $ano = $this->ano ?: (int) date('Y');
+        $current = strtotime("{$ano}-{$currentMonth}-01");
         for ($i = 5; $i >= 0; $i--) {
             $d = strtotime("-{$i} month", $current);
             $y = (int) date('Y', $d);

@@ -1,11 +1,4 @@
 <x-layouts.app>
-    @php
-        $kpis = app(\App\Livewire\Dashboard\Index::class)->kpis();
-        $evolucao = app(\App\Livewire\Dashboard\Index::class)->evolucaoDRE();
-        $anos = app(\App\Livewire\Dashboard\Index::class)->anosDisponiveis();
-        $mesAtual = (int) date('m');
-    @endphp
-
     <div class="flex h-full w-full flex-1 flex-col gap-6 rounded-xl p-2">
 
         <!-- Header com filtros -->
@@ -16,7 +9,7 @@
             </div>
             <div class="flex items-center gap-3">
                 <select wire:model.live="ano" class="text-sm border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-1.5 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
-                    @foreach($anos as $a)
+                    @foreach($anosDisponiveis as $a)
                         <option value="{{ $a }}">{{ $a }}</option>
                     @endforeach
                 </select>
@@ -89,7 +82,7 @@
                         <span class="font-semibold text-zinc-800 dark:text-zinc-200 text-sm">Eventos Recentes</span>
                     </div>
                     <div class="p-4 flex flex-col gap-3">
-                        @forelse(app(\App\Livewire\Dashboard\Index::class)->eventosMes() as $evento)
+                        @forelse($eventosMes as $evento)
                             <div class="flex items-center justify-between text-sm">
                                 <span class="text-zinc-600 dark:text-zinc-400">{{ $evento['nome_evento'] ?? ($evento['codigo_contrato'] ?? 'Sem nome') }}</span>
                                 <x-status-badge type="contract" status="{{ $evento['status_booking'] ?? 'draft' }}" />
@@ -111,9 +104,9 @@
                         <span class="font-semibold text-zinc-800 dark:text-zinc-200 text-sm">Evolucao DRE (6 meses)</span>
                     </div>
                     <div class="p-4">
-                        @php $receitas = array_column($evolucao, 'receita'); $despesas = array_column($evolucao, 'despesa'); $maxVal = max(array_merge($receitas, $despesas), 1); @endphp
+                        @php $receitas = array_column($evolucaoDRE, 'receita'); $despesas = array_column($evolucaoDRE, 'despesa'); $maxVal = max(array_merge($receitas, $despesas)); $maxVal = $maxVal > 0 ? $maxVal : 1; @endphp
                         <div class="flex items-end gap-2 h-40">
-                            @foreach($evolucao as $mes)
+                            @foreach($evolucaoDRE as $mes)
                                 <div class="flex-1 flex flex-col items-center gap-1">
                                     <div class="w-full flex flex-col-reverse gap-0.5">
                                         <div class="w-full bg-zinc-200 dark:bg-zinc-700 rounded-t-sm" style="height: {{ max(($mes['despesa'] / $maxVal) * 120, 2) }}px;" title="Despesa: R$ {{ number_format($mes['despesa'], 0) }}">
@@ -135,26 +128,25 @@
         </div>
 
         <!-- Taxas Cambio -->
-        @php $taxas = app(\App\Livewire\Dashboard\Index::class)->taxasCambio(); @endphp
-        @if($taxas['USD_BRL'] || $taxas['EUR_BRL'])
+        @if($taxasCambio['USD_BRL'] || $taxasCambio['EUR_BRL'])
             <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 flex items-center gap-6">
                 <span class="text-xs text-zinc-500 uppercase tracking-wide">Taxas de Cambio (BCB)</span>
-                @if($taxas['USD_BRL'])
+                @if($taxasCambio['USD_BRL'])
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-zinc-600">USD/BRL:</span>
-                        <span class="font-mono text-sm font-medium">R$ {{ number_format($taxas['USD_BRL'], 3) }}</span>
+                        <span class="font-mono text-sm font-medium">R$ {{ number_format($taxasCambio['USD_BRL'], 3) }}</span>
                     </div>
                 @endif
-                @if($taxas['EUR_BRL'])
+                @if($taxasCambio['EUR_BRL'])
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-zinc-600">EUR/BRL:</span>
-                        <span class="font-mono text-sm font-medium">R$ {{ number_format($taxas['EUR_BRL'], 3) }}</span>
+                        <span class="font-mono text-sm font-medium">R$ {{ number_format($taxasCambio['EUR_BRL'], 3) }}</span>
                     </div>
                 @endif
-                @if($taxas['USD_EUR'])
+                @if($taxasCambio['USD_EUR'])
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-zinc-600">USD/EUR:</span>
-                        <span class="font-mono text-sm font-medium">{{ number_format($taxas['USD_EUR'], 4) }}</span>
+                        <span class="font-mono text-sm font-medium">{{ number_format($taxasCambio['USD_EUR'], 4) }}</span>
                     </div>
                 @endif
             </div>

@@ -35,7 +35,7 @@ class ConciliacaoService
             }
 
             $parsedDate = $this->parseOfxDate($date);
-            $hash = $this->generateHash($contaBancaria, $parsedDate, $amount, $fitid);
+            $hash = $this->generateHash($contaBancaria, $parsedDate, (float) $amount, $fitid);
 
             // Skip duplicates
             if (ExtratoBancarioTransacao::where('hash_unico', $hash)->exists()) {

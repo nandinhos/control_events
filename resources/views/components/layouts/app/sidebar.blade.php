@@ -15,7 +15,7 @@
                 <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>Dashboard</flux:navlist.item>
 
                 <flux:navlist.group heading="Operações" class="grid gap-0.5">
-<flux:navlist.item icon="document" :href="route('contratos.index')" :current="request()->routeIs('contratos.*')" wire:navigate>Contratos</flux:navlist.item>
+                    <flux:navlist.item icon="document" :href="route('contratos.index')" :current="request()->routeIs('contratos.*')" wire:navigate>Contratos</flux:navlist.item>
                     <flux:navlist.item icon="users" :href="route('hub-artista')" :current="request()->routeIs('hub-artista')" wire:navigate>Hub Artista</flux:navlist.item>
                 </flux:navlist.group>
 

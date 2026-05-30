@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -7,7 +8,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
+Route::get('dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -24,16 +25,11 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('receber', 'receivable.index')->name('receber');
     Volt::route('pagar', 'payable.index')->name('pagar');
     Volt::route('conciliacao', 'conciliacao.index')->name('conciliacao');
-    Volt::route('hub-artista', 'hub-artista')->name('hub-artista');
-    Volt::route('internacional', 'internacional')->name('internacional');
-
-    // Módulos do Sistema de Eventos
-    Route::view('contracts', 'contracts')->name('contracts');
     Route::view('hub-artista', 'hub-artista')->name('hub-artista');
-    Route::view('receber', 'receber')->name('receber');
-    Route::view('pagar', 'pagar')->name('pagar');
-    Route::view('conciliacao', 'conciliacao')->name('conciliacao');
     Route::view('internacional', 'internacional')->name('internacional');
+
+    // Módulos do Sistema de Eventos (legacy - usar componentes Livewire)
+    Route::view('contracts', 'contracts')->name('contracts');
 });
 
 require __DIR__.'/auth.php';

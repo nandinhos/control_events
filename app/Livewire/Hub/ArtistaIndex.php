@@ -80,6 +80,6 @@ class ArtistaIndex extends Component
 
     public function render()
     {
-        return view('hub-artista');
+        return view('livewire.hub.artista-index');
     }
 }

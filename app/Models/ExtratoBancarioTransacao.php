@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ExtratoBancarioTransacao extends Model
 {
-    protected $table = 'extrato_bancario_transacaos';
+    protected $table = 'extrato_bancario_transacoes';
 
     public const STATUS_CONCILIACAO_PENDENTE = 'pendente';
     public const STATUS_CONCILIACAO_CONCILIADO = 'conciliado';

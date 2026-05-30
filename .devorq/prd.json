@@ -1,0 +1,56 @@
+{
+  "project": "control_events",
+  "stack": ["Laravel 13", "Livewire v4", "Flux Pro v2.14", "Sail", "PostgreSQL 17"],
+  "generated_at": "2026-05-30T06:47:00Z",
+  "intent": "Systematic debugging completo — garantir 100% verde (Playwright E2E + PHPStan + Tests)",
+  "stories": [
+    {
+      "id": "fix-001",
+      "title": "Corrigir $ano em timelineFinanceira()",
+      "description": "TimelineFinanceira usava $this->ano diretamente sem fallback, causando date overflow quando componente criado via app(). Bug ja identificado e fixo aplicado.",
+      "status": "done",
+      "ac": ["Timeline Financeira carrega sem erros SQL date overflow"],
+      "files": ["app/Livewire/Dashboard/Index.php"]
+    },
+    {
+      "id": "verify-001",
+      "title": "Verificacao Visual — Playwright E2E",
+      "description": "Executar suite Playwright em todas as rotas autenticadas: /dashboard, /entidades, /contratos, /receber, /pagar, /conciliacao, /hub-artista, /internacional. Verificar HTTP 200 e sem erros 500.",
+      "status": "pending",
+      "ac": ["Todas as 9 rotas retornam HTTP 200 apos login", "Nenhum erro 500 no page durante navegacao"],
+      "files": ["playwright-e2e.cjs"]
+    },
+    {
+      "id": "static-001",
+      "title": "PHPStan Level 5 — Zero Errors",
+      "description": "Configurar phpstan.neon e executar analise em app/Models, app/Services, app/Livewire. Zero errors requeridos.",
+      "status": "pending",
+      "ac": ["vendor/bin/phpstan analyse — 0 errors", "Todos os arquivos em app/Models, app/Services, app/Livewire verificados"],
+      "files": ["phpstan.neon"]
+    },
+    {
+      "id": "test-001",
+      "title": "Testes PHPUnit/Pest — 100% Pass",
+      "description": "Executar php artisan test e garantir que todos passam. Testes pre-existentes de autenticacao e settings devem continuar verdes.",
+      "status": "pending",
+      "ac": ["php artisan test — exit code 0", "Todos os testes em tests/ passando"],
+      "files": ["tests/"]
+    },
+    {
+      "id": "lessons-001",
+      "title": "Capturar Lessons Aprendidas",
+      "description": "Documentar lições aprendidas durante o debug: $ano fallback, strftime vs DateTime, status vs status_booking.",
+      "status": "pending",
+      "ac": ["3 lessons capturadas em .devorq/state/lessons/captured/"],
+      "files": [".devorq/state/lessons/"]
+    },
+    {
+      "id": "commit-001",
+      "title": "Commit Manual — Apos Verificacao Visual",
+      "description": "Apos todas as stories verdes (exceto lessons que pode ser paralelo), commitar com convencao DEVORQ. SEM COMMIT AUTOMATICO.",
+      "status": "pending",
+      "ac": ["git commit com scope fix(dashboard)", "Nenhum arquivo esquecido no staging"],
+      "files": [".devorq/", "app/Livewire/Dashboard/", "SPEC.md"]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Entidade;
+namespace App\Livewire\Entidades;
 
 use App\Http\Requests\StoreEntidadeRequest;
 use App\Http\Requests\UpdateEntidadeRequest;
@@ -264,7 +264,7 @@ class Index extends Component
 
     public function render()
     {
-        return view('livewire.entidade.index', [
+        return view('livewire.entidades.index', [
             'entidades' => $this->entidades,
         ]);
     }

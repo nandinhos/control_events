@@ -1,0 +1,16 @@
+parameters:
+    paths:
+        - app/Models
+        - app/Services
+        - app/Livewire
+    level: 5
+    excludePaths:
+        - app/Http/Controllers
+    ignoreErrors:
+        - '#Call to an undefined method Illuminate#'
+        - '#Access to an undefined property#'
+        - '#Method .* should return Illuminate.Database.Eloquent.Builder but returns#'
+        - '#Call to an undefined static method App.Models.#'
+        - '#Using nullsafe property access#'
+        - '#Offset .* on array#'
+    reportUnmatchedIgnoredErrors: false

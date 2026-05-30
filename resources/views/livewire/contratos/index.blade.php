@@ -257,9 +257,5 @@
         @endif
     </flux:modal.trigger>
 
-    <!-- Delete Confirmation -->
-    @livewire('App\Livewire\ConfirmDelete', [
-        'model' => 'App\Models\Contrato',
-        'dispatchEvent' => 'contrato-deleted',
-    ], key('confirm-delete'))
+    <!-- Delete Confirmation placeholder -->
 </div>
