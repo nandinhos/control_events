@@ -216,6 +216,7 @@
                             <option value="quitado">Quitado</option>
                             <option value="vencido">Vencido</option>
                             <option value="cancelado">Cancelado</option>
+                            <option value="aguardando_cambio">Aguardando Câmbio</option>
                         </flux:select>
                     </div>
                     <div>
@@ -230,6 +231,50 @@
                         <flux:input wire:model="cashflow_categoria" placeholder="Categoria" />
                     </div>
                 </div>
+
+                <!-- INT-004: Campos de Câmbio (Admin only) -->
+                @if($this->canManageCambio)
+                    <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4 mt-4">
+                        <flux:heading level="4" class="text-sm font-medium mb-3">Câmbio e Multimoeda</flux:heading>
+                        <div class="grid grid-cols-4 gap-4">
+                            <div>
+                                <flux:field.label>Moeda Original</flux:field.label>
+                                <flux:select wire:model="moeda_original">
+                                    <option value="BRL">BRL</option>
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                    <option value="GBP">GBP</option>
+                                </flux:select>
+                            </div>
+                            <div>
+                                <flux:field.label>Valor USD</flux:field.label>
+                                <flux:input wire:model="valor_usd" type="number" step="0.01" min="0" />
+                            </div>
+                            <div>
+                                <flux:field.label>Valor EUR</flux:field.label>
+                                <flux:input wire:model="valor_eur" type="number" step="0.01" min="0" />
+                            </div>
+                            <div>
+                                <flux:field.label>Valor GBP</flux:field.label>
+                                <flux:input wire:model="valor_gbp" type="number" step="0.01" min="0" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 mt-3">
+                            <div>
+                                <flux:field.label>Taxa Câmbio</flux:field.label>
+                                <flux:input wire:model="taxa_cambio" type="number" step="0.000001" />
+                            </div>
+                            <div>
+                                <flux:field.label>Tipo Câmbio</flux:field.label>
+                                <flux:select wire:model="tipo_cambio">
+                                    <option value="">Selecione...</option>
+                                    <option value="oficial">Oficial (BCB)</option>
+                                    <option value="manual">Manual</option>
+                                </flux:select>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <!-- PROV-003: Splits de Destino -->
                 <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4 mt-4">

@@ -42,6 +42,14 @@ class Index extends Component
     public string $status_pagamento = 'aberto';
     public string $cashflow_categoria = '';
 
+    // INT-004: Multicurrency fields
+    public string $moeda_original = 'BRL';
+    public string $valor_usd = '';
+    public string $valor_eur = '';
+    public string $valor_gbp = '';
+    public string $taxa_cambio = '';
+    public string $tipo_cambio = '';
+
     // Splits
     public array $splits = [];
 
@@ -97,6 +105,13 @@ class Index extends Component
         return ['Panorama', 'Coral', 'Artista'];
     }
 
+    // INT-004: Admin-only exchange rate management
+    #[Computed]
+    public function canManageCambio(): bool
+    {
+        return auth()->check() && auth()->user()->isAdminFinance();
+    }
+
     public function resetFilters(): void
     {
         [$this->search, $this->filterStatusBooking, $this->filterStatusPagamento, $this->filterMesBase, $this->filterBooker, $this->filterRegistroContabil] = ['', '', '', '', '', ''];
@@ -130,6 +145,15 @@ class Index extends Component
         $this->vencimento_atual = $lancamento->vencimento_atual?->format('Y-m-d') ?? '';
         $this->status_pagamento = $lancamento->status_pagamento;
         $this->cashflow_categoria = $lancamento->cashflow_categoria ?? '';
+
+        // INT-004: Multicurrency fields
+        $this->moeda_original = $lancamento->moeda_original ?? 'BRL';
+        $this->valor_usd = (string) $lancamento->valor_usd;
+        $this->valor_eur = (string) $lancamento->valor_eur;
+        $this->valor_gbp = (string) $lancamento->valor_gbp;
+        $this->taxa_cambio = (string) ($lancamento->taxa_cambio ?? '');
+        $this->tipo_cambio = $lancamento->tipo_cambio ?? '';
+
         $this->splits = $lancamento->splits->map(fn($s) => [
             'tipo_destinatario' => $s->tipo_destinatario,
             'entidade_id' => (string) $s->entidade_id,
@@ -163,8 +187,15 @@ class Index extends Component
             'valor_previsto' => 'required|numeric|min:0',
             'vencimento_original' => 'required|date',
             'vencimento_atual' => 'required|date',
-            'status_pagamento' => 'required|in:aberto,quitado,vencido,cancelado',
+            'status_pagamento' => 'required|in:aberto,quitado,vencido,cancelado,aguardando_cambio',
             'cashflow_categoria' => 'nullable|string|max:100',
+            // INT-004: Multicurrency validation
+            'moeda_original' => 'nullable|in:BRL,USD,EUR,GBP',
+            'valor_usd' => 'nullable|numeric|min:0',
+            'valor_eur' => 'nullable|numeric|min:0',
+            'valor_gbp' => 'nullable|numeric|min:0',
+            'taxa_cambio' => 'nullable|numeric|min:0',
+            'tipo_cambio' => 'nullable|in:oficial,manual',
         ];
 
         if (!$this->isEditing) {
@@ -259,6 +290,12 @@ class Index extends Component
         $this->vencimento_atual = '';
         $this->status_pagamento = 'aberto';
         $this->cashflow_categoria = '';
+        $this->moeda_original = 'BRL';
+        $this->valor_usd = '';
+        $this->valor_eur = '';
+        $this->valor_gbp = '';
+        $this->taxa_cambio = '';
+        $this->tipo_cambio = '';
         $this->splits = [];
     }
 
