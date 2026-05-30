@@ -3,11 +3,14 @@
 namespace App\Livewire\Payable;
 
 use App\Models\ContasAPagar;
+use App\Models\Contrato;
 use App\Models\Entidade;
 use App\Models\NomenclaturaConfig;
+use App\Services\ProvisionamentoValidationService;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Validation\ValidationException;
 
 class Index extends Component
 {
@@ -177,6 +180,18 @@ class Index extends Component
             'info_favorecido' => 'nullable|string',
             'observacoes' => 'nullable|string',
         ]);
+
+        // PAY-001: Bloquear se contrato vinculado não está em "Em Execucao"
+        if (!empty($data['contrato_ref_id'])) {
+            $contrato = Contrato::find($data['contrato_ref_id']);
+            if ($contrato && $contrato->getEstado() !== Contrato::ESTADO_EM_EXECUCAO) {
+                throw ValidationException::withMessages([
+                    'contrato_ref_id' => [
+                        'Não é possível vincular despesa a contrato que não está em "Em Execução". Status atual: ' . $contrato->getEstado(),
+                    ],
+                ]);
+            }
+        }
 
         $data['conciliado_status'] = 'N';
 

@@ -55,6 +55,26 @@
         </div>
     </div>
 
+    <!-- PROV-002: Alerta Provisionamento Incompleto -->
+    @if($contrato->getEstado() === 'Aguardando Assinatura' && !$contrato->isProvisionamentoCompleto())
+        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+                <flux:icon icon="exclamation-triangle" class="text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                    <flux:heading level="4" class="text-amber-800 dark:text-amber-200">Provisionamento Incompleto</flux:heading>
+                    <p class="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                        A soma das parcelas de <strong>booking</strong> (R$ {{ number_format($contrato->somaBooking, 2, ',', '.') }})
+                        não corresponde ao valor bruto do contrato (R$ {{ number_format($contrato->valor_bruto, 2, ',', '.') }}).
+                        Faltam <strong>R$ {{ number_format($contrato->valorFaltante, 2, ',', '.') }}</strong>.
+                    </p>
+                    <p class="text-xs text-amber-600 dark:text-amber-400 mt-2">
+                        ℹ️ Lançamentos <em>extra</em> não entram na validação do valor base do contrato.
+                    </p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Details Grid -->
     <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
