@@ -1,0 +1,61 @@
+{
+  "project": "control_events",
+  "created_at": "2026-05-30T04:38:27Z",
+  "updated_at": "2026-05-30T04:38:27Z",
+  "requisitos": [
+    {
+      "id": "RF-CON-01",
+      "tipo": "Funcional",
+      "titulo": "Cadastro de Contrato",
+      "descricao": "Cadastro detalhado de uma Gig com Booker, Artista, Contratante, Código, Data, Valor Bruto, Moeda e Comissão."
+    },
+    {
+      "id": "RF-CON-02",
+      "tipo": "Funcional",
+      "titulo": "Máquina de Estados de Contrato",
+      "descricao": "Ciclo de vida rígido: Draft -> Aguardando Assinatura -> Em Execução (Liberado) -> Concluído."
+    },
+    {
+      "id": "RF-REC-01",
+      "tipo": "Funcional",
+      "titulo": "Provisionamento de Recebíveis",
+      "descricao": "Validação automática para garantir que a soma das parcelas de Booking seja idêntica ao valor bruto do contrato."
+    },
+    {
+      "id": "RF-REC-02",
+      "tipo": "Funcional",
+      "titulo": "Splits de Destino Financeiro",
+      "descricao": "Desmembramento de uma parcela em frações destinadas a diferentes contas contábeis (ex: Panorama, Coral, Artista)."
+    },
+    {
+      "id": "RF-PAG-01",
+      "tipo": "Funcional",
+      "titulo": "Bloqueio de Contas a Pagar",
+      "descricao": "Impedir cadastro ou processamento de despesas de Gig se o contas a receber correspondente não estiver provisionado/validado."
+    },
+    {
+      "id": "RF-CONC-01",
+      "tipo": "Funcional",
+      "titulo": "Importação e Conciliação Bancária",
+      "descricao": "Leitura de extratos OFX/CSV, auto-match baseado em score fuzzy, e conciliação N-para-1 (múltiplos títulos para uma transação)."
+    },
+    {
+      "id": "RF-INT-01",
+      "tipo": "Funcional",
+      "titulo": "Controle Multimoedas e Alçada de Câmbio",
+      "descricao": "Suporte a lançamentos em BRL, USD, EUR e GBP com bloqueio de baixa até o fechamento da taxa de câmbio oficial por admin."
+    },
+    {
+      "id": "RNF-SEG-01",
+      "tipo": "Não Funcional",
+      "titulo": "RBAC e Segurança de Dados Confidenciais",
+      "descricao": "Restringir acesso a despesas corporativas e de RH apenas para usuários com perfil de Administrador Financeiro."
+    },
+    {
+      "id": "RNF-USA-01",
+      "tipo": "Não Funcional",
+      "titulo": "Interface Compacta sem Scroll",
+      "descricao": "Otimizar formulários e fluxos para caber na tela principal above the fold, usando wizards de no máximo 3 passos."
+    }
+  ]
+}

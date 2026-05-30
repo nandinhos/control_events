@@ -1,0 +1,22 @@
+{
+  "project": "control_events",
+  "intent": "Systematic debugging completo — garantir 100% verde (Playwright E2E + PHPStan + Tests)",
+  "stack": ["Laravel 13", "Livewire v4", "Flux Pro v2.14", "Sail", "PostgreSQL 17"],
+  "gates_completed": [],
+  "pending_gates": [1, 2, 3, 4, 5, 6, 7],
+  "last_session": "2026-05-30T03:37:00Z",
+  "pending": "systematic debugging + verification visual",
+  "errors": [],
+  "success_criteria": [
+    "Playwright E2E: todas paginas navegaveis sem 500",
+    "PHPStan: 0 errors em app/Models, app/Services, app/Livewire",
+    "Tests: todos passando sem erros pre-existentes",
+    "Routes: HTTP 200 em todas as rotas autenticadas",
+    "Dashboard: KPIs renderizados sem erros SQL"
+  ],
+  "unify_done": false,
+  "unify_file": null,
+  "ac_passed": 0,
+  "ac_deferred": 0,
+  "lesson_learned": "Dashboard $ano deve ter fallback para date('Y') em TODOS os metodos que usam $this->ano"
+}

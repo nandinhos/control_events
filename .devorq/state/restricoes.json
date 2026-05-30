@@ -1,0 +1,11 @@
+{
+  "project": "control_events",
+  "created_at": "2026-05-30T04:38:27Z",
+  "updated_at": "2026-05-30T04:38:27Z",
+  "restricoes": [
+    "O banco de dados deve utilizar transações ACID para consistência da máquina de estados do contrato e dos lançamentos.",
+    "O sistema deve ser desenvolvido com o framework Laravel 13, Livewire e Volt no frontend.",
+    "Os dados de contas bancárias e PIX devem ser armazenados criptografados com AES-256 no banco de dados.",
+    "Não é permitida a conciliação automática definitiva sem a confirmação ou revisão de um operador humano no painel."
+  ]
+}

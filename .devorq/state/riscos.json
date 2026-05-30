@@ -1,0 +1,25 @@
+{
+  "project": "control_events",
+  "created_at": "2026-05-30T04:38:27Z",
+  "updated_at": "2026-05-30T04:38:27Z",
+  "riscos": [
+    {
+      "id": "R-01",
+      "description": "Divergência de valores e formatações nas planilhas Excel legadas dificultando a importação ou gerando registros com erros de arredondamento de float.",
+      "severity": "high",
+      "mitigation": "Uso de campos do tipo DECIMAL(15,2) no banco e criação de scripts robustos de saneamento e validação de dados durante a importação."
+    },
+    {
+      "id": "R-02",
+      "description": "Falta de conciliação automática por divergência extrema nos nomes dos pagadores reais informados nos extratos (por exemplo, transferências de terceiros ou empresas intermediárias) vs. os cadastrados no contrato.",
+      "severity": "medium",
+      "mitigation": "Implementação de busca textual difusa (fuzzy search) ampla e opção para o operador associar manualmente lançamentos indicando o contrato correto diretamente na interface de conciliação."
+    },
+    {
+      "id": "R-03",
+      "description": "Acesso indevido a dados de folha de pagamento de funcionários ou pró-labore de sócios por operadores de contratos sem as permissões corretas.",
+      "severity": "high",
+      "mitigation": "Forçar validações estritas de RBAC a nível de consulta SQL e filtros de segurança nos endpoints e componentes Livewire."
+    }
+  ]
+}

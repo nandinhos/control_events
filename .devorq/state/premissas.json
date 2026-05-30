@@ -1,0 +1,11 @@
+{
+  "project": "control_events",
+  "created_at": "2026-05-30T04:38:27Z",
+  "updated_at": "2026-05-30T04:38:27Z",
+  "premissas": [
+    "A estrutura de banco de dados mapeada do Excel deve suportar integralmente os dados legados das planilhas contratos.xlsx, contas_a_receber.xlsx, contas_a_pagar.xlsx, internacional.xlsx e CADASTRO_OMIE.xlsx.",
+    "O ambiente operacional será baseado em contêineres Docker usando o Laravel Sail com banco PostgreSQL.",
+    "A validação de equivalência financeira (soma das parcelas a receber deve coincidir com o valor bruto contratado) é obrigatória antes de permitir lançamentos a pagar para a mesma Gig.",
+    "O controle de acesso de visualização de despesas (operacional vs. administrativo/RH) é segregado com base em RBAC (role_admin_finance)."
+  ]
+}
