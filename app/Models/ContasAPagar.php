@@ -43,6 +43,14 @@ class ContasAPagar extends Model
         'meio_pagamento',
         'info_favorecido',
         'observacoes',
+        'valor_brl',
+        'valor_usd',
+        'valor_eur',
+        'valor_gbp',
+        'moeda_original',
+        'taxa_cambio',
+        'tipo_cambio',
+        'taxa_cambio_user_id',
     ];
 
     protected $casts = [

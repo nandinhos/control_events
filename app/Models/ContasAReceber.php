@@ -15,6 +15,7 @@ class ContasAReceber extends Model
     public const STATUS_PAGAMENTO_QUITADO = 'quitado';
     public const STATUS_PAGAMENTO_VENCIDO = 'vencido';
     public const STATUS_PAGAMENTO_CANCELADO = 'cancelado';
+    public const STATUS_PAGAMENTO_AGUARDANDO_CAMBIO = 'aguardando_cambio';
 
     public const REGISTRO_CONTABIL_PANORAMA = 'Panorama';
     public const REGISTRO_CONTABIL_CORAL = 'Coral';
@@ -45,6 +46,14 @@ class ContasAReceber extends Model
         'valor_principal',
         'juros_multas',
         'cashflow_categoria',
+        'valor_brl',
+        'valor_usd',
+        'valor_eur',
+        'valor_gbp',
+        'moeda_original',
+        'taxa_cambio',
+        'tipo_cambio',
+        'taxa_cambio_user_id',
     ];
 
     protected $casts = [
@@ -99,6 +108,23 @@ class ContasAReceber extends Model
     public function scopeVencido(Builder $query): Builder
     {
         return $query->where('status_pagamento', self::STATUS_PAGAMENTO_VENCIDO);
+    }
+
+    public function scopeAguardandoCambio(Builder $query): Builder
+    {
+        return $query->where('status_pagamento', self::STATUS_PAGAMENTO_AGUARDANDO_CAMBIO);
+    }
+
+    // INT-003: Accessor para verificar se aguardando cambio
+    public function getIsAguardandoCambioAttribute(): bool
+    {
+        return $this->status_pagamento === self::STATUS_PAGAMENTO_AGUARDANDO_CAMBIO;
+    }
+
+    // INT-003: Verifica se tem valor estrangeiro sem BRL
+    public function getTemValorEstrangeiroSemBrlAttribute(): bool
+    {
+        return ($this->valor_usd > 0 || $this->valor_eur > 0 || $this->valor_gbp > 0) && $this->valor_brl == 0;
     }
 
     public function scopeByRegistroContabil(Builder $query, string $registro): Builder

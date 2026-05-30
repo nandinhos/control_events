@@ -192,8 +192,26 @@ class Index extends Component
             $this->lancamento = $lancamento;
         }
 
-        // Save splits
+        // Save splits with validation
         if (!empty($this->splits)) {
+            // SECURITY: Validate tipo_destinatario against allowlist
+            $validDestinos = \App\Services\SplitsValidationService::DESTINOS_VALIDOS;
+            foreach ($this->splits as $index => $split) {
+                if (empty($split['tipo_destinatario'])) continue;
+                if (!in_array($split['tipo_destinatario'], $validDestinos, true)) {
+                    $this->addError("splits.{$index}.tipo_destinatario", "Destino '{$split['tipo_destinatario']}' inválido. Use: " . implode(', ', $validDestinos));
+                    return;
+                }
+            }
+
+            // FINANCIAL INTEGRITY: Validate split sum matches valor_previsto
+            $somaSplits = array_sum(array_column(array_filter($this->splits, fn($s) => !empty($s['tipo_destinatario'])), 'valor_absoluto'));
+            $valorPrevisto = (float) ($data['valor_previsto'] ?? 0);
+            if (count($this->splits) > 0 && abs($somaSplits - $valorPrevisto) >= 0.01) {
+                $this->addError('valor_previsto', "Soma dos splits (R$ " . number_format($somaSplits, 2, ',', '.') . ") não corresponde ao valor previsto (R$ " . number_format($valorPrevisto, 2, ',', '.') . ").");
+                return;
+            }
+
             $this->lancamento->splits()->delete();
             foreach ($this->splits as $split) {
                 if (empty($split['tipo_destinatario']) || empty($split['entidade_id'])) continue;
