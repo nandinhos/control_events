@@ -105,6 +105,9 @@
                             </td>
                             <td class="px-4 py-3 text-right">
                                 @if(!$t->conciliado_status)
+                                    <flux:button wire:click="openNpara1({{ $t->id }})" variant="ghost" size="sm" title="N-para-1">
+                                        <flux:icon variant="micro" icon="adjustments-horizontal" />
+                                    </flux:button>
                                     <flux:button wire:click="openManualLink({{ $t->id }})" variant="ghost" size="sm" title="Link manual">
                                         <flux:icon variant="micro" icon="arrows-right-left" />
                                     </flux:button>
@@ -128,6 +131,121 @@
         </div>
         <div class="p-4 border-t border-zinc-200 dark:border-zinc-700">{{ $this->transacoesBancarias->links() }}</div>
     </div>
+
+    <!-- N-para-1 Panel -->
+    @if($transacaoParaNpara1)
+        <div class="fixed inset-y-0 right-0 z-50 w-96 bg-white dark:bg-zinc-800 border-l border-zinc-200 dark:border-zinc-700 shadow-xl flex flex-col">
+            <div class="p-4 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between">
+                <div>
+                    <h3 class="font-semibold text-lg">N-para-1</h3>
+                    <p class="text-sm text-zinc-500">Selecione lançamentos para conciliar</p>
+                </div>
+                <flux:button wire:click="$set('transacaoParaNpara1', null); $set('selectedLancamentos', [])" variant="ghost" size="sm">
+                    <flux:icon variant="micro" icon="x-mark" />
+                </flux:button>
+            </div>
+
+            <!-- Transação Selecionada -->
+            <div class="p-4 bg-violet-50 dark:bg-violet-900/20 border-b border-zinc-200 dark:border-zinc-700">
+                <div class="text-xs text-zinc-500 uppercase tracking-wide mb-1">Transação Bancária</div>
+                <div class="font-medium">{{ $transacaoParaNpara1->descricao }}</div>
+                <div class="text-2xl font-bold text-violet-600">
+                    R$ {{ number_format($transacaoParaNpara1->valor, 2, ',', '.') }}
+                </div>
+            </div>
+
+            <!-- Soma e Diferença -->
+            <div class="p-4 border-b border-zinc-200 dark:border-zinc-700">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm text-zinc-600">Soma selecionada:</span>
+                    <span class="font-medium">R$ {{ number_format($this->somaSelecionados, 2, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm text-zinc-600">Diferença:</span>
+                    <span class="font-medium {{ $this->diferencaNpara1 < 0.01 ? 'text-green-600' : 'text-red-600' }}">
+                        R$ {{ number_format($this->diferencaNpara1, 2, ',', '.') }}
+                    </span>
+                </div>
+                @if($this->diferencaNpara1 < 0.01)
+                    <flux:badge color="success" class="w-full justify-center">Soma bate!</flux:badge>
+                @else
+                    <flux:badge color="danger" class="w-full justify-center">Diferença detectada</flux:badge>
+                @endif
+            </div>
+
+            <!-- Ações de Seleção -->
+            <div class="p-4 border-b border-zinc-200 dark:border-zinc-700 flex gap-2">
+                <flux:button wire:click="selectAllVisible" variant="outline" size="sm" class="flex-1">
+                    Selecionar Todos
+                </flux:button>
+                <flux:button wire:click="clearSelection" variant="ghost" size="sm">
+                    Limpar
+                </flux:button>
+            </div>
+
+            <!-- Lista de Lançamentos -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-2">
+                @forelse($this->lancamentosNaoConciliados as $lancamento)
+                    <div class="flex items-start gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors">
+                        <input
+                            type="checkbox"
+                            wire:change="toggleLancamento({{ json_encode([
+                                'id' => $lancamento->id,
+                                'tipo' => $lancamento->tipo,
+                                'label' => $lancamento->label,
+                                'valor' => $lancamento->valor,
+                            ]) }})"
+                            :checked="$this->isSelected({{ $lancamento->id }})"
+                            class="mt-1 rounded border-zinc-300 text-violet-600 focus:ring-violet-500"
+                        />
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium truncate">{{ $lancamento->label }}</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <flux:badge size="sm" color="{{ $lancamento->tipo === 'ContasAReceber' ? 'success' : 'warning' }}">
+                                    {{ $lancamento->tipo === 'ContasAReceber' ? 'Receber' : 'Pagar' }}
+                                </flux:badge>
+                                <span class="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                                    R$ {{ number_format($lancamento->valor, 2, ',', '.') }}
+                                </span>
+                            </div>
+                        </div>
+                        <!-- REC-004: Quick Edit -->
+                        <flux:button wire:click="enableEdit({{ json_encode([
+                            'id' => $lancamento->id,
+                            'tipo' => $lancamento->tipo,
+                            'valor' => $lancamento->valor,
+                        ]) }})" variant="ghost" size="xs" title="Editar valor">
+                            <flux:icon variant="micro" icon="pencil" />
+                        </flux:button>
+                    </div>
+                @empty
+                    <div class="text-center py-8 text-zinc-500">
+                        <flux:icon variant="large" icon="inbox" class="mx-auto mb-2 opacity-50" />
+                        <p>Nenhum lançamento disponível</p>
+                    </div>
+                @endforelse
+            </div>
+
+            <!-- Footer com Ações -->
+            <div class="p-4 border-t border-zinc-200 dark:border-zinc-700 space-y-2">
+                <!-- REC-006: Novo Lançamento -->
+                <flux:button wire:click="openNewLancamentoModal" variant="outline" size="sm" class="w-full">
+                    <flux:icon variant="micro" icon="plus" class="mr-1.5" />Novo Lançamento
+                </flux:button>
+
+                <!-- REC-005: Botão Confirmar (só habilitado se soma bater) -->
+                <flux:button
+                    wire:click="conciliarNpara1"
+                    variant="primary"
+                    class="w-full"
+                    :disabled="!$this->canConciliarNpara1()"
+                >
+                    <flux:icon variant="micro" icon="check" class="mr-1.5" />
+                    Conciliar N-para-1 ({{ count($selectedLancamentos) }})
+                </flux:button>
+            </div>
+        </div>
+    @endif
 
     <!-- Import Modal -->
     <flux:modal name="import-modal" class="max-w-md">
@@ -192,6 +310,37 @@
         <flux:modal.footer>
             <flux:button wire:click="closeManualLink" variant="ghost">Cancelar</flux:button>
             <flux:button wire:click="saveManualLink" variant="primary">Linkar</flux:button>
+        </flux:modal.footer>
+    </flux:modal>
+
+    <!-- REC-006: Novo Lançamento Modal -->
+    <flux:modal name="new-lancamento-modal" class="max-w-md">
+        <flux:modal.header>Criar Novo Lançamento</flux:modal.header>
+        <flux:modal.body>
+            <div class="space-y-4">
+                <flux:select wire:model="newLancamentoTipo" label="Tipo">
+                    <option value="ContasAReceber">Contas a Receber</option>
+                    <option value="ContasAPagar">Contas a Pagar</option>
+                </flux:select>
+
+                @if($newLancamentoTipo === 'ContasAReceber')
+                    <flux:input wire:model="newReceivableEvento" label="Nome do Evento" placeholder="Ex: Show São Paulo" />
+                    <flux:input wire:model="newReceivableValor" label="Valor" type="number" step="0.01" placeholder="0.00" />
+                    <flux:input wire:model="newReceivableVencimento" label="Vencimento" type="date" />
+                    <flux:input wire:model="newReceivableContrato" label="Contrato (opcional)" placeholder="ID do contrato" />
+                @else
+                    <flux:input wire:model="newPayableDescricao" label="Descrição" placeholder="Ex: Aluguel HQ" />
+                    <flux:input wire:model="newPayableValor" label="Valor" type="number" step="0.01" placeholder="0.00" />
+                    <flux:input wire:model="newPayableDataDevida" label="Data de Vencimento" type="date" />
+                    <flux:input wire:model="newPayableFornecedor" label="Fornecedor (opcional)" placeholder="Nome do fornecedor" />
+                @endif
+            </div>
+        </flux:modal.body>
+        <flux:modal.footer>
+            <flux:button wire:click="closeNewLancamentoModal" variant="ghost">Cancelar</flux:button>
+            <flux:button wire:click="createAndLinkLancamento" variant="primary">
+                Criar e Vincular
+            </flux:button>
         </flux:modal.footer>
     </flux:modal>
 </div>
