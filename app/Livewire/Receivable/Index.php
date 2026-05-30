@@ -249,7 +249,7 @@ class Index extends Component
             // FINANCIAL INTEGRITY: Validate split sum matches valor_previsto
             $somaSplits = array_sum(array_column(array_filter($this->splits, fn($s) => !empty($s['tipo_destinatario'])), 'valor_absoluto'));
             $valorPrevisto = (float) ($data['valor_previsto'] ?? 0);
-            if (count($this->splits) > 0 && abs($somaSplits - $valorPrevisto) >= 0.01) {
+            if (abs($somaSplits - $valorPrevisto) >= 0.01) {
                 $this->addError('valor_previsto', "Soma dos splits (R$ " . number_format($somaSplits, 2, ',', '.') . ") não corresponde ao valor previsto (R$ " . number_format($valorPrevisto, 2, ',', '.') . ").");
                 return;
             }
