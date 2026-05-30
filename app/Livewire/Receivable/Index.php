@@ -204,6 +204,17 @@ class Index extends Component
 
         $data = $this->validate($rules);
 
+        // INT-004: SECURITY - Only admin can set multicurrency fields
+        if (!$this->canManageCambio) {
+            // Force clear multicurrency fields for non-admins
+            $data['moeda_original'] = 'BRL';
+            $data['valor_usd'] = 0;
+            $data['valor_eur'] = 0;
+            $data['valor_gbp'] = 0;
+            $data['taxa_cambio'] = null;
+            $data['tipo_cambio'] = null;
+        }
+
         // Validate: if contrato_id provided, status must be "confirmado"
         if (!empty($data['contrato_id'])) {
             $contrato = Contrato::find($data['contrato_id']);

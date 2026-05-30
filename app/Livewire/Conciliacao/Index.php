@@ -90,8 +90,10 @@ class Index extends Component
     public function lancamentosNaoConciliados()
     {
         // HUB-002: Filtro por artista
+        // INT-005: Não mostra movimentacao interna na conciliacao
         $receberQuery = ContasAReceber::whereDoesntHave('conciliacaoLinks')
-            ->aberto();
+            ->aberto()
+            ->visivelNaConciliacao();
         if ($this->filterArtistaId) {
             $receberQuery->where('artista_id', $this->filterArtistaId);
         }

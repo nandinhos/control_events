@@ -23,6 +23,7 @@ class ContasAReceber extends Model
 
     public const TIPO_LANCAMENTO_BOOKING = 'Booking';
     public const TIPO_LANCAMENTO_EXTRA_CONTRATUAL = 'Extra Contratual';
+    public const TIPO_LANCAMENTO_MOVIMENTACAO_INTERNA = 'Movimentacao Interna';
 
     protected $fillable = [
         'contrato_id',
@@ -155,6 +156,12 @@ class ContasAReceber extends Model
     public function scopeByMesBase(Builder $query, string $mesBase): Builder
     {
         return $query->where('mes_base', $mesBase);
+    }
+
+    // INT-005: Não aparece na conciliação bancária (movimentação interna)
+    public function scopeVisivelNaConciliacao(Builder $query): Builder
+    {
+        return $query->where('tipo_lancamento', '!=', self::TIPO_LANCAMENTO_MOVIMENTACAO_INTERNA);
     }
 
     public function scopeVencimentosEntre(Builder $query, $from, $to): Builder

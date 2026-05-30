@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasContratoLifecycle;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Contrato extends Model
 {
+    use HasContratoLifecycle;
     protected $table = 'contratos';
 
     public const STATUS_BOOKING_CONFIRMADO = 'Confirmado';
