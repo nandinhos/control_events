@@ -14,21 +14,41 @@
             <flux:navlist variant="outline">
                 <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>Dashboard</flux:navlist.item>
 
-                <flux:navlist.group heading="Operações" class="grid gap-0.5">
-                    <flux:navlist.item icon="document" :href="route('contratos.index')" :current="request()->routeIs('contratos.*')" wire:navigate>Contratos</flux:navlist.item>
-                    <flux:navlist.item icon="users" :href="route('hub-artista')" :current="request()->routeIs('hub-artista')" wire:navigate>Hub Artista</flux:navlist.item>
-                </flux:navlist.group>
+                @if(auth()->check() && auth()->user()->hasAnyRole(['role_contract', 'role_admin_finance']))
+                    <flux:navlist.group heading="Operações" class="grid gap-0.5">
+                        @if(auth()->user()->hasAnyRole(['role_contract', 'role_admin_finance']))
+                            <flux:navlist.item icon="document" :href="route('contratos.index')" :current="request()->routeIs('contratos.*')" wire:navigate>Contratos</flux:navlist.item>
+                        @endif
+                        @if(auth()->user()->hasAnyRole(['role_receivable', 'role_admin_finance']))
+                            <flux:navlist.item icon="users" :href="route('hub-artista')" :current="request()->routeIs('hub-artista')" wire:navigate>Hub Artista</flux:navlist.item>
+                        @endif
+                    </flux:navlist.group>
+                @endif
 
-                <flux:navlist.group heading="Financeiro" class="grid gap-0.5">
-                    <flux:navlist.item icon="arrow-down-left" :href="route('receber')" :current="request()->routeIs('receber')" wire:navigate>Receber</flux:navlist.item>
-                    <flux:navlist.item icon="arrow-up-right" :href="route('pagar')" :current="request()->routeIs('pagar')" wire:navigate>Pagar</flux:navlist.item>
-                    <flux:navlist.item icon="arrows-right-left" :href="route('conciliacao')" :current="request()->routeIs('conciliacao')" wire:navigate>Conciliacao</flux:navlist.item>
-                </flux:navlist.group>
+                @if(auth()->check() && auth()->user()->hasAnyRole(['role_receivable', 'role_payable', 'role_admin_finance']))
+                    <flux:navlist.group heading="Financeiro" class="grid gap-0.5">
+                        @if(auth()->user()->hasAnyRole(['role_receivable', 'role_admin_finance']))
+                            <flux:navlist.item icon="arrow-down-left" :href="route('receber')" :current="request()->routeIs('receber')" wire:navigate>Receber</flux:navlist.item>
+                        @endif
+                        @if(auth()->user()->hasAnyRole(['role_payable', 'role_admin_finance']))
+                            <flux:navlist.item icon="arrow-up-right" :href="route('pagar')" :current="request()->routeIs('pagar')" wire:navigate>Pagar</flux:navlist.item>
+                        @endif
+                        @if(auth()->user()->hasAnyRole(['role_receivable', 'role_payable', 'role_admin_finance']))
+                            <flux:navlist.item icon="arrows-right-left" :href="route('conciliacao')" :current="request()->routeIs('conciliacao')" wire:navigate>Conciliacao</flux:navlist.item>
+                        @endif
+                    </flux:navlist.group>
+                @endif
 
-                <flux:navlist.group heading="Configuracoes" class="grid gap-0.5">
-                    <flux:navlist.item icon="users" :href="route('entidades.index')" :current="request()->routeIs('entidades.*')" wire:navigate>Entidades</flux:navlist.item>
-                    <flux:navlist.item icon="globe-alt" :href="route('internacional')" :current="request()->routeIs('internacional')" wire:navigate>Internacional</flux:navlist.item>
-                </flux:navlist.group>
+                @if(auth()->check() && auth()->user()->hasAnyRole(['role_international', 'role_admin_finance']))
+                    <flux:navlist.group heading="Configuracoes" class="grid gap-0.5">
+                        @if(auth()->user()->hasAnyRole(['role_contract', 'role_admin_finance']))
+                            <flux:navlist.item icon="users" :href="route('entidades.index')" :current="request()->routeIs('entidades.*')" wire:navigate>Entidades</flux:navlist.item>
+                        @endif
+                        @if(auth()->user()->hasAnyRole(['role_international', 'role_admin_finance']))
+                            <flux:navlist.item icon="globe-alt" :href="route('internacional')" :current="request()->routeIs('internacional')" wire:navigate>Internacional</flux:navlist.item>
+                        @endif
+                    </flux:navlist.group>
+                @endif
             </flux:navlist>
 
             <flux:spacer />
